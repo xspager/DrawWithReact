@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-us" class="dark">
+<html lang="en-us" class="dark overscroll-none">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,14 +11,8 @@
 
     <!-- Don't use this in production: -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        /* body, #root, canvas {
-            width: 100vw;
-            height: 100vh;
-        } */
-    </style>
   </head>
-  <body class="@container">            
+  <body class="@container overscroll-none">            
     <div id="root"></div>
     <!--script type="text/babel" data-preset="env,typescript" src="particle.ts"></script-->
     <script type="text/babel" data-preset="env,react">
@@ -87,10 +81,10 @@
             return Math.atan2(dy, dx);
         }
 
-        function App({children}) {
+        function App() {
             const [elements, setElements] = useState([]);
             const [drawing, setDrawing] = useState(false);
-            const [selectedType, setSelectedType] = useState("arrow");
+            const [selectedType, setSelectedType] = useState("line");
 
             useLayoutEffect(() => {
                 const canvas = document.getElementById("canvas");
@@ -100,7 +94,7 @@
 
                 ctx.fillStyle = "black";
                 ctx.strokeStyle = "black";
-                ctx.lineWidth = "5";
+                ctx.lineWidth = "3";
                 ctx.lineCap = "round";
 
                 elements.forEach(element => {
