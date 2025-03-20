@@ -28,6 +28,57 @@ function calcAngle({a, b}) {
     return Math.atan2(dy, dx);
 }
 
+function drawElement(element) {
+    ctx.strokeStyle = element.strokeColor;
+    ctx.fillStyle = element.fillColor;
+    if(element.type === "line") {
+        ctx.beginPath();
+        if(false) {
+            ctx.ellipse(...Object.values(element.a), 10, 10, 0,  2 * Math.PI, false);
+        }
+        ctx.moveTo(...Object.values(element.a));
+        ctx.lineTo(...Object.values(element.b));
+        if (false) {
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(...Object.values(element.b), 10, 0,  2 * Math.PI, true);
+        }
+        ctx.stroke();
+    }
+    if(element.type === "rect") {
+        ctx.strokeRect(...Object.values(element.a), ...calcWidthAndHeight(element));
+        ctx.rect(...Object.values(element.a), ...calcWidthAndHeight(element));
+        ctx.fill();
+    }
+    if(element.type==="ellipse") {
+        ctx.beginPath();
+        ctx.ellipse(...Object.values(element.a), ...calcWidthAndHeight(element), 0,  2 * Math.PI, false);
+        ctx.stroke();
+        ctx.fill();
+    }
+    if(element.type==="arrow") {
+        const headlen = 30;
+        const angle = calcAngle(element);
+        ctx.beginPath();
+        ctx.moveTo(...Object.values(element.a));
+        ctx.lineTo(...Object.values(element.b));
+        //ctx.stroke();
+        const [bx, by] = Object.values(element.b);
+        //ctx.beginPath();
+        ctx.moveTo(...Object.values(element.b));
+        ctx.lineTo(bx - headlen * Math.cos(angle - Math.PI / 6), by - headlen * Math.sin(angle - Math.PI / 6));
+        //ctx.strokeStyle = "green";
+        //ctx.stroke();
+        //ctx.beginPath();
+        ctx.moveTo(...Object.values(element.b));
+        //ctx.strokeStyle = "red";
+        ctx.lineTo(bx - headlen * Math.cos(angle + Math.PI / 6), by - headlen * Math.sin(angle + Math.PI / 6));
+        ctx.stroke();
+        ctx.strokeStyle = "black";
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+}
+
 function App() {
     const [elements, setElements] = useState([]);
     const [drawing, setDrawing] = useState(false);
@@ -45,59 +96,7 @@ function App() {
         ctx.lineWidth = "3";
         ctx.lineCap = "round";
 
-        elements.forEach(element => {
-            ctx.strokeStyle = element.strokeColor;
-            ctx.fillStyle = element.fillColor;
-            if(element.type === "line") {
-                ctx.beginPath();
-                if(false) {
-                    ctx.ellipse(...Object.values(element.a), 10, 10, 0,  2 * Math.PI, false);
-                }
-                ctx.moveTo(...Object.values(element.a));
-                ctx.lineTo(...Object.values(element.b));
-                if (false) {
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.arc(...Object.values(element.b), 10, 0,  2 * Math.PI, true);
-                }
-                ctx.stroke();
-            }
-            if(element.type === "rect") {
-                ctx.strokeRect(...Object.values(element.a), ...calcWidthAndHeight(element));
-                ctx.rect(...Object.values(element.a), ...calcWidthAndHeight(element));
-                ctx.fill();
-            }
-            if(element.type==="ellipse") {
-                ctx.beginPath();
-                ctx.ellipse(...Object.values(element.a), ...calcWidthAndHeight(element), 0,  2 * Math.PI, false);
-                ctx.stroke();
-                ctx.fill();
-            }
-            if(element.type==="arrow") {
-                const headlen = 30;
-                const angle = calcAngle(element);
-                ctx.beginPath();
-                ctx.moveTo(...Object.values(element.a));
-                ctx.lineTo(...Object.values(element.b));
-                //ctx.stroke();
-                const [bx, by] = Object.values(element.b);
-
-                //ctx.beginPath();
-                ctx.moveTo(...Object.values(element.b));
-                ctx.lineTo(bx - headlen * Math.cos(angle - Math.PI / 6), by - headlen * Math.sin(angle - Math.PI / 6));
-                //ctx.strokeStyle = "green";
-                //ctx.stroke();
-
-                //ctx.beginPath();
-                ctx.moveTo(...Object.values(element.b));
-                //ctx.strokeStyle = "red";
-                ctx.lineTo(bx - headlen * Math.cos(angle + Math.PI / 6), by - headlen * Math.sin(angle + Math.PI / 6));
-                ctx.stroke();
-
-                ctx.strokeStyle = "black";
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-            }
-        });
+        elements.forEach(element => drawElement(element));
     }, [elements, foregroundColor]);
     
     const handleMouseDown = (event) => {
@@ -133,6 +132,32 @@ function App() {
         if(drawing) setDrawing(false);
     }
 
+    const handleTouchStart = (event) => {
+        if (event.touches.length > 1 || (event.type === "touched" && event.touches.length > 0)) {
+            console.log("Multi finger touch, ignoring it.");
+            return;
+        }
+        event.clientX = event.touches[0].clientX;
+        event.clientY = event.touches[0].clientY;
+        console.log(event);
+        handleMouseDown(event);
+    }
+
+    const handleTouchMove = (event) => {
+        if (event.touches.length > 1 || (event.type === "touched" && event.touches.length > 0)) {
+            console.log("Multi finger touch, ignoring it.");
+            return;
+        }
+        event.clientX = event.touches[0].clientX;
+        event.clientY = event.touches[0].clientY;
+        console.log(event);
+        handleMouseMove(event);
+    }
+
+    const handleTouchEnd = (event) => {
+        handleMouseUp(event);
+    }
+
     return (
 <>
     <nav className="fixed m-2">
@@ -146,9 +171,9 @@ function App() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseOut={handleMouseOut}
-        onTouchStart={handleMouseDown}
-        onTouchMove={handleMouseMove}
-        onTouchEnd={handleMouseUp}>
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}>
         Canvas not supported :(
     </canvas>
 </>
