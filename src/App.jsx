@@ -139,7 +139,6 @@ function App() {
         }
         event.clientX = event.touches[0].clientX;
         event.clientY = event.touches[0].clientY;
-        console.log(event);
         handleMouseDown(event);
     }
 
@@ -150,7 +149,6 @@ function App() {
         }
         event.clientX = event.touches[0].clientX;
         event.clientY = event.touches[0].clientY;
-        console.log(event);
         handleMouseMove(event);
     }
 
